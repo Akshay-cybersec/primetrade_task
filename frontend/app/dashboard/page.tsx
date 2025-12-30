@@ -26,7 +26,6 @@ interface UserProfile {
     username: string;
     email: string;
 }
-
 export default function Dashboard() {
     const router = useRouter();
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -37,9 +36,12 @@ export default function Dashboard() {
     const [searchQuery, setSearchQuery] = useState("");
     const [token, setToken] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
+    
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+
     useEffect(() => {
         if (typeof window === "undefined") return;
-
         const cookieToken = document.cookie
             .split("; ")
             .find((row) => row.startsWith("token="))
@@ -51,12 +53,11 @@ export default function Dashboard() {
             setToken(cookieToken);
         }
     }, [router]);
+
     useEffect(() => {
         if (!token) return;
         fetchInitialData();
     }, [token]);
-
-
 
     const fetchInitialData = async () => {
         setLoading(true);
@@ -89,7 +90,6 @@ export default function Dashboard() {
     const addTask = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.title) return;
-
         setIsAdding(true); 
         try {
             const res = await fetch(`${API_URL}/tasks/`, {
@@ -100,13 +100,10 @@ export default function Dashboard() {
                 },
                 body: JSON.stringify(form),
             });
-
             if (res.ok) {
                 setForm({ title: "", description: "" });
                 await fetchTasks(); 
             }
-        } catch (error) {
-            console.error("Failed to add task", error);
         } finally {
             setIsAdding(false); 
         }
@@ -121,7 +118,6 @@ export default function Dashboard() {
             },
             body: JSON.stringify(form),
         });
-
         if (res.ok) {
             setEditId(null);
             setForm({ title: "", description: "" });
@@ -130,15 +126,22 @@ export default function Dashboard() {
     };
 
     const deleteTask = async (id: string) => {
-        const res = await fetch(`${API_URL}/tasks/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) fetchTasks();
+        setIsDeletingId(id);
+        try {
+            const res = await fetch(`${API_URL}/tasks/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) await fetchTasks();
+        } finally {
+            setIsDeletingId(null);
+        }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        setIsLoggingOut(true);
         document.cookie = "token=; path=/; max-age=0";
+        localStorage.removeItem("token");
         router.replace("/login");
     };
 
@@ -176,16 +179,17 @@ export default function Dashboard() {
                     </div>
                     <button
                         onClick={logout}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                        disabled={isLoggingOut}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
                     >
-                        <LogOut size={18} />
-                        Logout
+                        {isLoggingOut ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
+                        {isLoggingOut ? "Logging out..." : "Logout"}
                     </button>
                 </div>
             </aside>
 
             <main className="flex-1 p-4 md:p-10 max-w-5xl">
-                <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+\                <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-extrabold text-slate-900">Task Overview</h1>
                         <p className="text-slate-500 font-medium">Manage and track your internship tasks.</p>
@@ -235,13 +239,8 @@ export default function Dashboard() {
                             disabled={isAdding}
                             className="md:col-span-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 min-w-[100px]"
                         >
-                            {isAdding ? (
-                                <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                                <>
-                                    <Plus size={18} /> Add
-                                </>
-                            )}
+                            {isAdding ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
+                            {isAdding ? "Adding..." : "Add"}
                         </button>
                     </form>
                 </section>
@@ -315,10 +314,15 @@ export default function Dashboard() {
                                                 </button>
                                                 <button
                                                     onClick={() => deleteTask(task.id)}
-                                                    className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                                    disabled={isDeletingId === task.id}
+                                                    className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
                                                     title="Delete task"
                                                 >
-                                                    <Trash2 size={18} />
+                                                    {isDeletingId === task.id ? (
+                                                        <Loader2 size={18} className="animate-spin" />
+                                                    ) : (
+                                                        <Trash2 size={18} />
+                                                    )}
                                                 </button>
                                             </>
                                         )}
