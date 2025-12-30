@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.env
+*.egg-info/
+venv/
+env/
+.venv/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+
+# Logs
+*.log
+logs/
+log.txt
+
+# IDE & Editor folders
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage / Test
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Build
+build/
+dist/
+
+# MongoDB dump files
+dump/
