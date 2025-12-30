@@ -4,6 +4,7 @@ from app.database import tasks_collection
 from app.schemas import TaskSchema
 from app.auth_utils import get_current_user
 
+
 router = APIRouter()
 
 def serialize_task(task):

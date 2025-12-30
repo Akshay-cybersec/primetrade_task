@@ -18,3 +18,5 @@ app.include_router(tasks.router, prefix="/tasks")
 @app.get("/")
 def root():
     return {"message": "Backend running"}
+
+
