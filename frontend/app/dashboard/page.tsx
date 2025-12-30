@@ -12,7 +12,7 @@ import {
     X,
     LayoutDashboard,
     User as UserIcon,
-    Filter,
+    Loader2,
     Zap
 } from "lucide-react";
 
@@ -36,6 +36,7 @@ export default function Dashboard() {
     const [form, setForm] = useState({ title: "", description: "" });
     const [searchQuery, setSearchQuery] = useState("");
     const [token, setToken] = useState<string | null>(null);
+    const [isAdding, setIsAdding] = useState(false);
     useEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -89,18 +90,25 @@ export default function Dashboard() {
         e.preventDefault();
         if (!form.title) return;
 
-        const res = await fetch(`${API_URL}/tasks/`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(form),
-        });
+        setIsAdding(true); 
+        try {
+            const res = await fetch(`${API_URL}/tasks/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+            });
 
-        if (res.ok) {
-            setForm({ title: "", description: "" });
-            fetchTasks();
+            if (res.ok) {
+                setForm({ title: "", description: "" });
+                await fetchTasks(); 
+            }
+        } catch (error) {
+            console.error("Failed to add task", error);
+        } finally {
+            setIsAdding(false); 
         }
     };
 
@@ -210,6 +218,7 @@ export default function Dashboard() {
                                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                                 className="text-black placeholder-gray-500 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
                                 required
+                                disabled={isAdding}
                             />
                         </div>
                         <div className="md:col-span-6">
@@ -219,10 +228,20 @@ export default function Dashboard() {
                                 value={form.description}
                                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                                 className="text-black placeholder-gray-500 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
+                                disabled={isAdding}
                             />
                         </div>
-                        <button className="md:col-span-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">
-                            <Plus size={18} /> Add
+                        <button
+                            disabled={isAdding}
+                            className="md:col-span-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 min-w-[100px]"
+                        >
+                            {isAdding ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                                <>
+                                    <Plus size={18} /> Add
+                                </>
+                            )}
                         </button>
                     </form>
                 </section>
@@ -257,12 +276,12 @@ export default function Dashboard() {
                                                 type="text"
                                                 value={form.title}
                                                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                                className="w-full px-4 py-2 bg-slate-50 border border-indigo-200 rounded-lg outline-none ring-2 ring-indigo-500/10 font-bold"
+                                                className="text-black w-full px-4 py-2 bg-slate-50 border border-indigo-200 rounded-lg outline-none ring-2 ring-indigo-500/10 font-bold"
                                             />
                                             <textarea
                                                 value={form.description}
                                                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                                className="w-full px-4 py-2 bg-slate-50 border border-indigo-200 rounded-lg outline-none"
+                                                className="text-black w-full px-4 py-2 bg-slate-50 border border-indigo-200 rounded-lg outline-none"
                                             />
                                         </div>
                                     ) : (
