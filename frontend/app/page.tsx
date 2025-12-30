@@ -1,19 +1,35 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { 
-  Zap, 
-  CheckCircle2, 
-  ArrowRight, 
-  ListTodo, 
-  ShieldCheck, 
-  LayoutDashboard 
+import {
+  Zap,
+  CheckCircle2,
+  ArrowRight,
+  ListTodo,
+  ShieldCheck,
+  LayoutDashboard,
+  AlertCircle
 } from 'lucide-react';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] relative overflow-hidden font-sans">
-
+      <div className="relative z-50 bg-amber-50 border-b border-amber-100 px-4 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-sm font-medium text-amber-800 text-center">
+          <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+          <span>
+            Backend is hosted on a free tier and may sleep.
+            <a
+              href="https://primetrade-task-0ofh.onrender.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-2 underline hover:text-amber-900 font-bold transition-colors"
+            >
+              Ping now to wake it up
+            </a>
+          </span>
+        </div>
+      </div>
       <div className="absolute inset-0 z-0 opacity-40">
         <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           <defs>
@@ -24,7 +40,7 @@ export default function HomePage() {
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
       </div>
-      
+
       <div className="absolute top-[-10%] right-[-5%] w-[30%] h-[30%] bg-indigo-100 rounded-full blur-[100px] z-0" />
       <div className="absolute bottom-[10%] left-[-5%] w-[30%] h-[30%] bg-blue-100 rounded-full blur-[100px] z-0" />
 
@@ -83,7 +99,7 @@ export default function HomePage() {
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
               </div>
             </div>
-            
+
             <div className="space-y-4">
               {[
                 { text: "Implement Signup UI", status: true },
@@ -104,7 +120,7 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-          
+
           <div className="absolute -bottom-6 -right-6 bg-indigo-900 text-white p-6 rounded-3xl shadow-2xl hidden md:block max-w-[180px]">
             <p className="text-xs font-medium text-indigo-300 mb-1">Weekly Growth</p>
             <p className="text-2xl font-bold">+24%</p>
